@@ -20,6 +20,7 @@ public class Account {
 
     @Column(nullable = false, unique = true)
     private String accountNumber;
+    private String accountType;
 
     @Column(nullable = false)
     private BigDecimal balance;
