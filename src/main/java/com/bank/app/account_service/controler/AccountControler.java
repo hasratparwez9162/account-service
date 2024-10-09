@@ -2,8 +2,8 @@ package com.bank.app.account_service.controler;
 
 
 import com.bank.app.account_service.entity.Account;
+import com.bank.app.account_service.exception.AccountNotFoundException;
 import com.bank.app.account_service.service.AccountService;
-import com.bank.core.entity.TransactionRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +34,16 @@ public class AccountControler {
         }
         return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
+    @GetMapping("/validate/{accountNumber}")
+    public ResponseEntity<String> validateAccount(@PathVariable String accountNumber) {
+        try {
+            accountService.validateAccountExists(accountNumber);
+            return ResponseEntity.ok("Account is valid");
+        } catch (AccountNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
-//    @PostMapping("/transaction")
-//    public ResponseEntity<String> performTransaction(@RequestBody TransactionRequest transactionRequest) {
-//        String response = accountService.processTransaction(transactionRequest);
-//        return ResponseEntity.ok(response);
-//    }
 
 
 }

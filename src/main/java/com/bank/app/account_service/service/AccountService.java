@@ -12,4 +12,6 @@ public interface AccountService {
         List<Account> getAccountsByUserId(Long userId);
 
         String processTransaction(TransactionRequest transactionRequest);
+    String processTransactions(TransactionRequest transactionRequest);
+         void validateAccountExists(String accountNumber);
 }

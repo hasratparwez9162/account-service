@@ -34,6 +34,18 @@ public class TransactionController {
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
+    @PostMapping("/transactions")
+    public ResponseEntity<String> performTransactions(@RequestBody TransactionRequest transactionRequest) {
+        try {
+            String response = accountService.processTransactions(transactionRequest);
+            return ResponseEntity.ok(response);
+        } catch (AccountNotFoundException | InsufficientFundsException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            // Log the exception
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
 
     @GetMapping("/transaction/{accountNumber}")
     public ResponseEntity<List<Transaction>> getTransactions(@PathVariable String accountNumber) {
