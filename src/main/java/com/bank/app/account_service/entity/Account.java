@@ -1,6 +1,7 @@
 package com.bank.app.account_service.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -20,6 +21,7 @@ public class Account {
 
     @Column(nullable = false, unique = true)
     private String accountNumber;
+    @NotBlank(message = "Account type is required.")
     private String accountType;
 
     @Column(nullable = false)
