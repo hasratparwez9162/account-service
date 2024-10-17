@@ -6,8 +6,8 @@ import com.bank.app.account_service.exception.InsufficientFundsException;
 import com.bank.app.account_service.repo.TransactionRepository;
 import com.bank.app.account_service.service.AccountService;
 import com.bank.core.entity.TransactionRequest;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/account")
-@Api(value = "Transaction Management System", tags = "Transaction Controller")
+@Tag(name = "Transaction Controller", description = "Transaction Management System")
 public class TransactionController {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
@@ -33,7 +33,10 @@ public class TransactionController {
     }
 
     @PostMapping("/transaction")
-    @ApiOperation(value = "Perform a transaction", response = String.class)
+    @Operation(summary = "Perform a transaction", description = "Perform a transaction", responses = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transaction performed successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input")
+    })
     public ResponseEntity<String> performTransaction(@RequestBody TransactionRequest transactionRequest) {
         logger.info("Performing transaction for account: {}", transactionRequest.getAccountNumber());
         try {
@@ -50,7 +53,10 @@ public class TransactionController {
     }
 
     @PostMapping("/transactions")
-    @ApiOperation(value = "Perform multiple transactions", response = String.class)
+    @Operation(summary = "Perform multiple transactions", description = "Perform multiple transactions", responses = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transactions performed successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input")
+    })
     public ResponseEntity<String> performTransactions(@RequestBody TransactionRequest transactionRequest) {
         logger.info("Performing multiple transactions for account: {}", transactionRequest.getAccountNumber());
         try {
@@ -67,7 +73,10 @@ public class TransactionController {
     }
 
     @GetMapping("/transaction/{accountNumber}")
-    @ApiOperation(value = "Get transactions by account number", response = List.class)
+    @Operation(summary = "Get transactions by account number", description = "Get transactions by account number", responses = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transactions fetched successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No transactions found")
+    })
     public ResponseEntity<List<Transaction>> getTransactions(@PathVariable String accountNumber) {
         logger.info("Fetching transactions for account number: {}", accountNumber);
         List<Transaction> transactions = transactionRepository.findByAccountNumber(accountNumber);

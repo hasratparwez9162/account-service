@@ -12,7 +12,6 @@ import com.bank.app.account_service.util.AccountUtil;
 import com.bank.core.entity.TransactionRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +24,15 @@ public class AccountServiceImpl implements AccountService {
 
     private static final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
+    private final AccountEventProducer accountEventProducer;
 
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
-    private AccountEventProducer accountEventProducer;
-
+    public AccountServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository, AccountEventProducer accountEventProducer) {
+        this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
+        this.accountEventProducer = accountEventProducer;
+    }
     @Override
     public Account openAccount(Account account) {
         logger.info("Opening new account for user: {}", account.getUserId());
@@ -137,5 +136,11 @@ public class AccountServiceImpl implements AccountService {
             logger.error("Account not found: {}", accountNumber);
             throw new AccountNotFoundException("Account not found: " + accountNumber);
         }
+    }
+    @Override
+    public Account getAccountByAccountNumber(String accountNumber) throws AccountNotFoundException {
+        logger.info("Fetch of account: {}", accountNumber);
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found: " + accountNumber));
     }
 }
