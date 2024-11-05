@@ -33,6 +33,12 @@ public class AccountServiceImpl implements AccountService {
         this.transactionRepository = transactionRepository;
         this.accountEventProducer = accountEventProducer;
     }
+
+    /**
+     * Opens a new account for a user.
+     * @param account The account details.
+     * @return The newly created account.
+     */
     @Override
     public Account openAccount(Account account) {
         logger.info("Opening new account for user: {}", account.getUserId());
@@ -45,12 +51,22 @@ public class AccountServiceImpl implements AccountService {
         return newAccount;
     }
 
+    /**
+     * Retrieves accounts by user ID.
+     * @param userId The ID of the user.
+     * @return A list of accounts belonging to the user.
+     */
     @Override
     public List<Account> getAccountsByUserId(Long userId) {
         logger.info("Fetching accounts for user ID: {}", userId);
         return accountRepository.findByUserId(userId);
     }
 
+    /**
+     * Processes a single transaction (credit or withdraw).
+     * @param transactionRequest The transaction request details.
+     * @return A message indicating the result of the transaction.
+     */
     @Transactional
     public String processTransaction(TransactionRequest transactionRequest) {
         String accountNumber = transactionRequest.getAccountNumber();
@@ -89,6 +105,11 @@ public class AccountServiceImpl implements AccountService {
         return "Transaction successful";
     }
 
+    /**
+     * Processes multiple transactions (transfer between accounts).
+     * @param transactionRequest The transaction request details.
+     * @return A message indicating the result of the transactions.
+     */
     @Transactional
     public String processTransactions(TransactionRequest transactionRequest) {
         String fromAccountNumber = transactionRequest.getFromAccount();
@@ -129,6 +150,10 @@ public class AccountServiceImpl implements AccountService {
         return "Transaction successful: " + amount + " transferred from " + fromAccountNumber + " to " + toAccountNumber;
     }
 
+    /**
+     * Validates if an account exists by account number.
+     * @param accountNumber The account number to validate.
+     */
     @Override
     public void validateAccountExists(String accountNumber) {
         logger.info("Validating existence of account: {}", accountNumber);
@@ -137,9 +162,16 @@ public class AccountServiceImpl implements AccountService {
             throw new AccountNotFoundException("Account not found: " + accountNumber);
         }
     }
+
+    /**
+     * Retrieves an account by account number.
+     * @param accountNumber The account number.
+     * @return The account details.
+     * @throws AccountNotFoundException if the account is not found.
+     */
     @Override
     public Account getAccountByAccountNumber(String accountNumber) throws AccountNotFoundException {
-        logger.info("Fetch of account: {}", accountNumber);
+        logger.info("Fetching account by account number: {}", accountNumber);
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found: " + accountNumber));
     }

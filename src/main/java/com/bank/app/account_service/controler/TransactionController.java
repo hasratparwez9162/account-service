@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,46 +33,65 @@ public class TransactionController {
         this.transactionRepository = transactionRepository;
     }
 
+    /**
+     * Perform a transaction (credit or withdraw).
+     * @param transactionRequest The transaction request details.
+     * @return A response entity with a message indicating the result of the transaction.
+     */
     @PostMapping("/transaction")
     @Operation(summary = "Perform a transaction", description = "Perform a transaction", responses = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transaction performed successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Account not found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<String> performTransaction(@RequestBody TransactionRequest transactionRequest) {
         logger.info("Performing transaction for account: {}", transactionRequest.getAccountNumber());
         try {
-            String response = accountService.processTransaction(transactionRequest);
+            String result = accountService.processTransaction(transactionRequest);
             logger.info("Transaction performed successfully for account: {}", transactionRequest.getAccountNumber());
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (AccountNotFoundException | InsufficientFundsException | IllegalArgumentException e) {
             logger.error("Error performing transaction for account: {}", transactionRequest.getAccountNumber(), e);
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            logger.error("Internal server error", e);
-            return ResponseEntity.status(500).body("Internal server error");
+            logger.error("Unexpected error performing transaction for account: {}", transactionRequest.getAccountNumber(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
 
+    /**
+     * Perform multiple transactions (transfer between accounts).
+     * @param transactionRequest The transaction request details.
+     * @return A response entity with a message indicating the result of the transactions.
+     */
     @PostMapping("/transactions")
     @Operation(summary = "Perform multiple transactions", description = "Perform multiple transactions", responses = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transactions performed successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Account not found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<String> performTransactions(@RequestBody TransactionRequest transactionRequest) {
         logger.info("Performing multiple transactions for account: {}", transactionRequest.getAccountNumber());
         try {
-            String response = accountService.processTransactions(transactionRequest);
+            String result = accountService.processTransactions(transactionRequest);
             logger.info("Transactions performed successfully for account: {}", transactionRequest.getAccountNumber());
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(result);
         } catch (AccountNotFoundException | InsufficientFundsException | IllegalArgumentException e) {
             logger.error("Error performing transactions for account: {}", transactionRequest.getAccountNumber(), e);
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            logger.error("Internal server error", e);
-            return ResponseEntity.status(500).body("Internal server error");
+            logger.error("Unexpected error performing transactions for account: {}", transactionRequest.getAccountNumber(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
 
+    /**
+     * Get transactions by account number.
+     * @param accountNumber The account number.
+     * @return A response entity with a list of transactions.
+     */
     @GetMapping("/transaction/{accountNumber}")
     @Operation(summary = "Get transactions by account number", description = "Get transactions by account number", responses = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Transactions fetched successfully"),
@@ -82,7 +102,7 @@ public class TransactionController {
         List<Transaction> transactions = transactionRepository.findByAccountNumber(accountNumber);
         if (transactions == null || transactions.isEmpty()) {
             logger.warn("No transactions found for account number: {}", accountNumber);
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         logger.info("Transactions fetched successfully for account number: {}", accountNumber);
         return ResponseEntity.ok(transactions);
