@@ -1,4 +1,4 @@
-package com.bank.app.account_service.controler;
+package com.bank.app.account_service.controller;
 
 import com.bank.app.account_service.entity.Transaction;
 import com.bank.app.account_service.exception.AccountNotFoundException;
@@ -52,10 +52,10 @@ public class TransactionController {
             logger.info("Transaction performed successfully for account: {}", transactionRequest.getAccountNumber());
             return ResponseEntity.ok(result);
         } catch (AccountNotFoundException | InsufficientFundsException | IllegalArgumentException e) {
-            logger.error("Error performing transaction for account: {}", transactionRequest.getAccountNumber(), e);
+            logger.error("Error performing transaction for account: {}", transactionRequest.getFromAccount(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            logger.error("Unexpected error performing transaction for account: {}", transactionRequest.getAccountNumber(), e);
+            logger.error("Unexpected error performing transaction for account: {}", transactionRequest.getFromAccount(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
@@ -73,16 +73,16 @@ public class TransactionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<String> performTransactions(@RequestBody TransactionRequest transactionRequest) {
-        logger.info("Performing multiple transactions for account: {}", transactionRequest.getAccountNumber());
+        logger.info("Performing multiple transactions for account: {}", transactionRequest.getFromAccount());
         try {
             String result = accountService.processTransactions(transactionRequest);
-            logger.info("Transactions performed successfully for account: {}", transactionRequest.getAccountNumber());
+            logger.info("Transactions performed successfully for account: {}", transactionRequest.getFromAccount());
             return ResponseEntity.ok(result);
         } catch (AccountNotFoundException | InsufficientFundsException | IllegalArgumentException e) {
-            logger.error("Error performing transactions for account: {}", transactionRequest.getAccountNumber(), e);
+            logger.error("Error performing transactions for account: {}", transactionRequest.getFromAccount(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            logger.error("Unexpected error performing transactions for account: {}", transactionRequest.getAccountNumber(), e);
+            logger.error("Unexpected error performing transactions for account: {}", transactionRequest.getFromAccount(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }

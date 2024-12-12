@@ -48,4 +48,9 @@ public class GlobalExceptionHandler {
         logger.error("AccountNotFoundException: ", ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found: " + ex.getMessage());
     }
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<String> handleInsufficientFundsException(InsufficientFundsException ex, WebRequest request) {
+        logger.error("InsufficientFundsException: ", ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Insufficient funds: " + ex.getMessage());
+    }
 }

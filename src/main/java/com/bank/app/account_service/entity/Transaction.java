@@ -4,7 +4,6 @@ package com.bank.app.account_service.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 

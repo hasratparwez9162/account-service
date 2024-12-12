@@ -26,7 +26,7 @@ public class AccountEventProducer {
     public void sendAccountCreatedMessage(Account account) {
         AccountNotification accountNotification = new AccountNotification(account.getAccountNumber(), account.getBalance(), account.getDateOpened(), account.getUserId(), account.getUserName(), account.getEmail(), account.getPhoneNumber());
         logger.info("Sending account created message for account number: {}", account.getAccountNumber());
-        kafkaTemplate.send(ACCOUNT_TOPIC, "Account Created", accountNotification);
+        kafkaTemplate.send(ACCOUNT_TOPIC, "Open", accountNotification);
         logger.info("Account created message sent successfully for account number: {}", account.getAccountNumber());
     }
 

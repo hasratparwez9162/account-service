@@ -1,4 +1,4 @@
-package com.bank.app.account_service.controler;
+package com.bank.app.account_service.controller;
 
 import com.bank.app.account_service.entity.Account;
 import com.bank.app.account_service.exception.AccountNotFoundException;
